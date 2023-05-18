@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Gaugedle</title>
-	
+	<title>Genshin Gaugedle</title>
+	<meta name=”Description” content="Try guessing a Genshin character's ability using information like it's element, gauge units, cooldowns and more!"> 	<!-- Description of this page for users and search engines. -->
+
+	<meta name="google-site-verification" content="QebuNazTMUuNlD6GgSrmAbVf5mxRFWJgaJLpGL9ValE" /> <!-- Google Search verification tag -->
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta http-equiv="Permissions-Policy" content="interest-cohort=()">
 	<link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+	<link rel="icon" href="./images/favicon.ico">
 	<link rel="stylesheet" href="stylege.css">
 
 	<iframe src="./files/silence.mp3" allow="autoplay" id="audio" style="display: none"></iframe>
@@ -16,6 +19,7 @@
 	</audio>
 
 	<script src="./javascript/cookies.js" defer></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script> <!-- in case I wanna use jquery -->
 	<script src="//cdnjs.cloudflare.com/ajax/libs/seedrandom/3.0.5/seedrandom.min.js"></script>
 	<script src="./javascript/statistic.js" defer></script>
 	<script src="./javascript/abilities.js" defer></script>
@@ -24,7 +28,8 @@
 	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 </head>
-<body class="bg">
+<body class="bg" id="page">
+	<h1 style="display: none;">"Try guessing a Genshin character's ability using information like it's element, gauge units, cooldowns and more!"</h1>
 	<!---
 	<video autoplay muted loop id="cookingmp4">
 		<source src="./images/cooking.mp4" type="video/mp4">
@@ -114,9 +119,18 @@
 		</div>
 	</div>
 
+	<div  id="end-popup">
+		<p id="end-popup p">---</p>
+		<div class="btncontainer">
+			<div class="btncenter">
+				<button id="closeBtn" onclick="closeEndPopup()" style="background-color: #9d9d9d";> Close </button>
+			</div>
+		  </div>
+	</div>
+
 	<footer>
 		<br>
-		<h3> Made by <a href="./aboutme/index.html"> probablyjassin:</a> <a href="./version/index.html"> Version 4.3</a> </h3>
+		<h3> Made by <a href="./aboutme/"> probablyjassin:</a> <a href="./version/"> Version 4.3</a> </h3>
 		<h3>Credit to <a href="https://www.twitch.tv/Zajef77"> Zajef77</a> who came up with the idea and provided the database</h3>
 	</footer>
 

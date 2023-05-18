@@ -1,4 +1,4 @@
-body {
+body, #page {
     background: url('https://frog.lowkey.gay/u/Fj1u1O.gif');
     height: 100%;
     background-position: center;
@@ -121,7 +121,7 @@ select {
     max-width: 800px;
     border-radius: 5px;
 }
-button {
+button, .button {
     display: block;
     margin: 1em auto;
     padding: 0.5em;
@@ -136,6 +136,7 @@ button {
     user-select: none;
     background-color: #2a2a2a;
     color: white;
+    font-family: "Comic Sans MS", "Comic Sans";
 }
 .button2 {
     display: block;
@@ -150,6 +151,7 @@ button {
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+    font-family: "Comic Sans MS", "Comic Sans";
 }
 table {
     border-collapse: collapse;
@@ -167,6 +169,9 @@ table {
 }
 .partial {
     background-color: rgb(255, 172, 17);
+}
+.solution {
+    background-color: #007bff;
 }
 input {
     width: 17.5%;
@@ -340,4 +345,47 @@ footer {
 audio, embed {
     position: absolute;
     z-index: -9999;
+}
+#end-popup {
+    display: none; /* hidden by default*/
+    position: fixed;
+    top: 20px;
+    left: 30%;
+    right: 30%;
+    background-color: #2a2a2a;
+    color: white;
+    text-shadow: none;
+    text-align: center;
+    font-weight: 5;
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0px 0px 10px rgba(0,0,0,0.3);
+    z-index: 9999;
+}
+#end-popup p {
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.5;
+}
+#end-popup button {
+    align-self: center;
+    margin: 10px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #2a2a2a;
+}
+.btncontainer { 
+    height: 4em;
+    position: relative;
+}
+.btncenter {
+    margin: 0;
+    position: absolute;
+    top: 60%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }

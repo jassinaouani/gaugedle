@@ -1,5 +1,7 @@
 // This is the game's main code
 
+// Focus the input textfield for the player to start guessing immediately
+document.getElementById("guess-input").focus()
 // Defaults to daily mode
 var mode = "daily"
 // Unless User switches to endless
@@ -21,6 +23,10 @@ function switchToEndless() {
 	document.getElementById("incorrect-guesses").style.display = 'inherit';
 	// Restart game
 	resetGame()
+	// Focus on the input field to start guessing immediately; after delay not to trigger the tet input
+	setTimeout(() => {
+		document.getElementById("guess-input").focus();
+	}, 50);
 }
 //Hide the corresponding title
 if (mode === "daily") {
@@ -152,25 +158,39 @@ const incorrectCount = document.getElementById("incorrect-count");
 // Initialize the counter for incorrect guesses
 let incorrectGuesses = 0;
 
+// Initialize prettyRandom as text that is the correct ability, but with spaces, for display
+var prettyRandom = ''
+
 // Function to check the player's guess and update the table
 function checkGuess() {
 	const rawValue = guessSelect.value;
 	const selectedAbility = rawValue.replace(/([ ])/g, "")
 	if (!abilityOptions.includes(selectedAbility)) {
-		alert("Please select an ability to guess.");
+		popup("Please select an ability to guess.")
 		return;
 	}
+
+	// Update prettyRandom
+	prettyRandom = randomAbility.replace(/([A-Z0-9])/g, ' $1')
 
 	// Create a new row for the guess
 	const newRow = abilityTable.insertRow();
 	const newGuessCell = newRow.insertCell();
 	newGuessCell.textContent = rawValue;
-
+	// Add icon image
+	const img = document.createElement("img");	
+	img.src = abilities[selectedAbility].Image;
+	img.width = "40";
+    img.height = "40";
+	img.style.marginLeft = "200";
+	img.style.verticalAlign = "middle";
+	newGuessCell.appendChild(img);
+		
 	for (let i = 0; i < propertiesToDisplay.length; i++) {
 		const property = propertiesToDisplay[i];
 		const newValueCell = newRow.insertCell();
 		newValueCell.textContent = abilities[selectedAbility][property];
-	
+		
 		if (abilities[selectedAbility][property] === abilities[randomAbility][property]) {
 			newValueCell.classList.add("correct");
 		} else {
@@ -202,8 +222,6 @@ function checkGuess() {
 	// Initialize correctGuess variable
 	let correctGuess = false;
 
-	const prettyRandom = randomAbility.replace(/([A-Z0-9])/g, ' $1')
-
 	// Check if player has guessed the correct ability
 	if (selectedAbility === randomAbility) {
 		correctGuess = true;
@@ -214,14 +232,15 @@ function checkGuess() {
 		incorrectCount.textContent = incorrectGuesses; 
     }
 
-	// If correct, show alert and show reset button
+	// If correct, show popup and show reset button
 	if (correctGuess) {
+		gameEnd()
 		// Save Incorrect Guesses To Cookies
 		saveIncorrectGuessesToCookie()
 		setTimeout(() => {
-			alert(`${prettyRandom} was the correct ability. Congratulations!`);
+			popup(`${prettyRandom} was the correct ability. Congratulations!`)
 		}, 100);
-		gameEnd()
+		
 	}
 
 	// Check if player has reached 8 incorrect guesses
@@ -229,13 +248,12 @@ function checkGuess() {
 		incorrectGuesses = 8
 		saveIncorrectGuessesToCookie()
 		incorrectCount.textContent = `8`
+		gameEnd()
 		setTimeout(() => {
-			alert(`You have reached 8 incorrect guesses. The correct ability was ${prettyRandom}.`);
-//			// Work in progress: Reveal the correct answer in blue
-			//newValueCell.classList.add
-			gameEnd(); 
+			popup(`You have reached 8 incorrect guesses.` +
+			`The correct ability was ${prettyRandom}.`)
+			showAnswer()
 			// Save Incorrect Guesses To Cookies
-			incorrectCount.textContent = `0`;
 		}, 100);
 	}
 }
@@ -247,12 +265,23 @@ node.addEventListener("keyup", function(event) {
     }
 });
 
+// Function to fill in the  correct answer in blue after the player loses the game 
+// Create a new row for the guess
+function showAnswer() {
+	console.log("WIP, would fill the correct answer now")
+	
+	window.scrollTo(0, 0); // Then also scroll to the very top of the page
+}
+
 // Hide reset button by default
 document.getElementById("reset-button").style.display = 'none';
 // Add event listener to reset button
 const resetButton = document.getElementById("reset-button");
 resetButton.addEventListener("click", function() {
 	resetGame()
+	setTimeout(() => {
+		document.getElementById("guess-input").focus()
+	}, 100);
 });
 
 // Things to do after the game ended by winning, conceding or losing
@@ -267,11 +296,10 @@ function gameEnd() {
 	// Remember the completion of the daily game
 	if (mode === 'daily') {
 		document.cookie = 'dailyComplete=true;expires='+nextday.toUTCString()+';path=/';
-		if (mode === 'daily') {
-			document.getElementById("dailyText").style.display = 'initial';
-			document.getElementById("timer").style.display = 'initial';
-			document.getElementById("dailyDiv").style.display = 'initial';
-		}
+		// Show contents for the completion of the daily game
+		document.getElementById("dailyText").style.display = 'initial';
+		document.getElementById("timer").style.display = 'initial';
+		document.getElementById("dailyDiv").style.display = 'initial';
 	}
 	// Show the reset button; Unless we're in daily mode
 	if (mode !== 'daily') {
@@ -320,15 +348,19 @@ document.getElementById("confirm-popup").style.display = 'none';
 
 // Add event listener to concede button
 concedeButton.addEventListener("click", function() {
-	if (incorrectGuesses === 0) {alert(`You didn't even guess anything yet`);}
+	if (incorrectGuesses === 0) {
+		popup(`You didn't even guess anything yet`)
+	}
 	else {
 		document.getElementById("confirm-popup").style.display = 'initial';
+		document.getElementById("confirmButton").focus();
 	}
 })
 confirmButton.addEventListener("click", function() {
 	document.getElementById("confirm-popup").style.display = 'none';
 	incorrectGuesses = "C"
-	saveIncorrectGuessesToCookie()
+	saveIncorrectGuessesToCookie();
+	showAnswer();
 	showCorrectAnswer();
 	gameEnd();
 });
@@ -340,32 +372,10 @@ cancelButton.addEventListener("click", function() {
 function showCorrectAnswer() {
 	if (incorrectGuesses === 0) {return false}
 	else {
-  		alert(`The correct ability was ${randomAbility}.`);
-		  gameEnd()
+		gameEnd()
+		popup(`The correct ability was ${randomAbility}.`)
 	}
 }
-
-/*
-// Helper function to set cookies
-function setCookie(name, value) {
-	if (getCookie("cookiesAgreeGe") !== 'true') {console.log("Saving cookies has been aborted, cookies haven't been agreed to")}
-	else {
-	document.cookie = name + "=" + value + ";path=/";
-}}
-  
-// Helper function to get cookies
-function getCookie(name) {
-	const cookieString = decodeURIComponent(document.cookie);
-	const cookies = cookieString.split(';');
-	for (let i = 0; i < cookies.length; i++) {
-		let cookie = cookies[i].trim();
-		if (cookie.indexOf(name + "=") === 0) {
-		return cookie.substring(name.length + 1, cookie.length);
-	}
-}
-	return "";
-}
-*/
 
 // Select the resetstats button element
 const resetstatsButton = document.getElementById("resetstats");
@@ -374,6 +384,27 @@ const resetstatsButton = document.getElementById("resetstats");
 resetstatsButton.addEventListener("click", function() {
 	setCookie("incorrectGuessesArray", '')
 	closestat()
+});
+
+//Function to show messages for events (lost/won/conceded game, ...)
+function popup(message) {
+	document.getElementById("end-popup").style.display = 'initial'
+	document.getElementById("end-popup p").innerHTML = message
+	document.getElementById("closeBtn").focus()
+}
+// Function to hide the popup
+function closeEndPopup() {
+	document.getElementById("end-popup").style.display = 'none'
+	document.getElementById("end-popup p").innerHTML = "---"
+	setTimeout(() => {
+		document.getElementById("guess-input").focus()
+	}, 100);
+	// focus on the play again button if it appeared
+	document.getElementById("reset-button").focus()
+}
+// Listen to the close button
+document.getElementById("closeBtn").addEventListener("click", function() {
+	closeEndPopup()
 });
 
 // If the daily is already done, hide game elements and show the timer
@@ -385,26 +416,13 @@ function dailyComplete() {
 		document.getElementById("buttonsdiv").style.display = 'none';
 		document.getElementById("guess-input").style.display = 'none';
 		document.getElementById("incorrect-guesses").style.display = 'none';
+		// Focus on the button to go to endless mode
+		document.getElementById("modeButton").focus()
+		
 	}
 }
 dailyComplete()
 
-
 // FOR DEVELOPEMENT: Select the correct-answer element on screen and display the answer
 // const correctAnswer = document.getElementById("correct-answer");
 // correctAnswer.textContent += randomAbility;
-
-//This is supposed to modify the search result text
-Callback = () => {
-    [...document.querySelectorAll(".gs-title")].forEach(el => {
-        el.innerHTML = "Jässin Aouani"; //testing
-    });
-};
-
-window.__gcse || (window.__gcse = {});
-
-window.__gcse.searchCallbacks = {
-    web: {
-        rendered: "Callback",
-    },
-};
