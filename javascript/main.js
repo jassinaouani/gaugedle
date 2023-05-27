@@ -1,5 +1,18 @@
 // This is the game's main code
 
+// Some simplicity improvements: hide multiple elements at once
+function hideElements(...ids) {
+	ids.forEach(id => {
+		document.getElementById(id).style.display = 'none'
+	});
+}
+function showElements(...ids) {
+	ids.forEach(id => {
+		document.getElementById(id).style.display = ''
+	});
+}
+hideElements(`popup-changelogs`) // hidden by default
+
 // Focus the input textfield for the player to start guessing immediately
 document.getElementById("guess-input").focus()
 // Defaults to daily mode
@@ -12,15 +25,8 @@ modeButton.addEventListener("click", function() {
 function switchToEndless() {
 	// Clear the table
 	mode = "endless"
-	document.getElementById("dailyDiv").style.display = 'none';
-	document.getElementById("timer").style.display = 'none';
-	document.getElementById("dailyText").style.display = 'none';
-	document.getElementById("modeButton").style.display = 'none';
-	document.getElementById("daily").style.display = 'none';
-	document.getElementById("endless").style.display = 'initial';
-	document.getElementById("buttonsdiv").style.display = 'inherit'
-	document.getElementById("guess-input").style.display = 'initial'
-	document.getElementById("incorrect-guesses").style.display = 'inherit';
+	hideElements("dailyDiv", "timer", "dailyText", "modeButton", "daily")
+	showElements("endless", "buttonsdiv", "guess-input", "incorrect-guesses")
 	// Restart game
 	resetGame()
 	// Focus on the input field to start guessing immediately; after delay not to trigger the tet input
@@ -161,6 +167,9 @@ let incorrectGuesses = 0;
 // Initialize prettyRandom as text that is the correct ability, but with spaces, for display
 var prettyRandom = ''
 
+// Initialize correctGuess variable
+let correctGuess = false;
+
 // Function to check the player's guess and update the table
 function checkGuess() {
 	const rawValue = guessSelect.value;
@@ -219,8 +228,8 @@ function checkGuess() {
 		}
 	}
 
-	// Initialize correctGuess variable
-	let correctGuess = false;
+	// Reset correctGuess
+	correctGuess = false;
 
 	// Check if player has guessed the correct ability
 	if (selectedAbility === randomAbility) {
@@ -305,11 +314,33 @@ function gameEnd() {
 	if (mode !== 'daily') {
 	document.getElementById("reset-button").style.display = 'initial';
 	}	
-	if (mode === 'endless') {}
+	if (mode === 'endless') {
+		//pass
+	}
+	// If the game was lost, reveal the correct answer in the table as well
+	if (!correctGuess) {
+		revealAnswer()
+	}
 }
+// Function to disable multiple buttons
+function disableElements(...ids) {
+	ids.forEach(id => {
+		document.getElementById(id).disabled = true;
+	});
+}
+// Function to re-enable buttons
+function enableElements(...ids) {
+	ids.forEach(id => {
+		document.getElementById(id).disabled = false;
+	});
+}
+// Function to style multiple elements
+function styleElement(...ids)
 
 // Function to reset the game
 function resetGame() {
+	// If the popup has been ignored, ignore the popup lol
+	closeEndPopup()
 	// Hide replay button again
 	document.getElementById("reset-button").style.display = 'none';
 
@@ -382,8 +413,9 @@ const resetstatsButton = document.getElementById("resetstats");
 
 // Add event listener to resetstats button in statistic
 resetstatsButton.addEventListener("click", function() {
-	setCookie("incorrectGuessesArray", '')
+	resetcookies()
 	closestat()
+	location.reload()
 });
 
 //Function to show messages for events (lost/won/conceded game, ...)
@@ -410,12 +442,9 @@ document.getElementById("closeBtn").addEventListener("click", function() {
 // If the daily is already done, hide game elements and show the timer
 function dailyComplete() {
 	if (getCookie("dailyComplete") === 'true') {
-		document.getElementById("dailyText").style.display = 'initial';
-		document.getElementById("timer").style.display = 'initial';
-		document.getElementById("dailyDiv").style.display = 'initial';
-		document.getElementById("buttonsdiv").style.display = 'none';
-		document.getElementById("guess-input").style.display = 'none';
-		document.getElementById("incorrect-guesses").style.display = 'none';
+		hideElements("buttonsdiv", "guess-input", "incorrect-guesses")
+		showElements("dailyText", "timer", "dailyDiv")
+
 		// Focus on the button to go to endless mode
 		document.getElementById("modeButton").focus()
 		
@@ -423,6 +452,37 @@ function dailyComplete() {
 }
 dailyComplete()
 
+// surely this will make music autoplay work
+document.addEventListener('click', musicPlay);
+function musicPlay() {
+    document.getElementById('musicPlay').play();
+    document.removeEventListener('click', musicPlay);
+}
+
+// Function to fill the correct answer in blue
+function revealAnswer() {
+	const rawValue = randomAbility;
+
+	// Update prettyRandom
+	prettyRandom = randomAbility.replace(/([A-Z0-9])/g, ' $1')
+
+	// Create a new row for the guess
+	const newRow = abilityTable.insertRow();
+	const newGuessCell = newRow.insertCell();
+	newGuessCell.textContent = rawValue;
+	// Add icon image
+	const img = document.createElement("img");	
+	img.src = abilities[randomAbility].Image;
+	img.classList.add("icon")
+	newGuessCell.appendChild(img);
+		
+	for (let i = 0; i < propertiesToDisplay.length; i++) {
+		const property = propertiesToDisplay[i];
+		const newValueCell = newRow.insertCell();
+		newValueCell.textContent = abilities[randomAbility][property];
+		newValueCell.classList.add("solution");
+	}
+}
 // FOR DEVELOPEMENT: Select the correct-answer element on screen and display the answer
 // const correctAnswer = document.getElementById("correct-answer");
 // correctAnswer.textContent += randomAbility;
